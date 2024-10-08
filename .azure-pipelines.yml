@@ -1,0 +1,40 @@
+trigger:
+- master  # Тригер на кожен пуш в гілку master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'inline'
+    script: |
+      pip install -r requirements.txt
+
+- task: Docker@2
+  inputs:
+    command: build
+    containerRegistry: '$(dockerRegistryServiceConnection)'  # Ваше ACR з'єднання
+    repository: 'your-acr-name/flask-income-app'  # Вкажіть ваше ім'я ACR і репозиторію
+    Dockerfile: '**/Dockerfile'
+    tags: |
+      $(Build.BuildId)
+
+- task: Docker@2
+  inputs:
+    command: push
+    containerRegistry: '$(dockerRegistryServiceConnection)'
+    repository: 'your-acr-name/flask-income-app'
+    tags: |
+      $(Build.BuildId)
+
+- task: AzureWebAppContainer@1
+  inputs:
+    azureSubscription: '$(azureSubscription)'  # Ваше з'єднання з Azure Subscription
+    appName: '$(appName)'  # Назва вашого Azure Web App
+    imageName: 'your-acr-name/flask-income-app:$(Build.BuildId)'
