@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Flask Application</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Flask Application!</h1>
+        <p>This application demonstrates Flask routing and CSS styling.</p>
+        
+        <h2>Try it out!</h2>
+        <input type="text" id="nameInput" placeholder="Enter your name">
+        <button onclick="greetUser()">Greet Me!</button>
+        <p id="greetingMessage"></p>
+    </div>
+
+    <script>
+        function greetUser() {
+            const name = document.getElementById('nameInput').value;
+            fetch(`/api/greet/${name}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('greetingMessage').innerText = data.greeting;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
