@@ -1,23 +1,26 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Welcome to the Flask Application!"
+    return render_template('index.html')
 
 @app.route('/api/data', methods=['GET'])
 def get_data():
-    # Приклад даних для повернення
     data = {
         'message': 'Hello, this is your data!',
         'status': 'success'
     }
     return jsonify(data)
 
+@app.route('/api/greet/<name>', methods=['GET'])
+def greet_user(name):
+    greeting = f"Hello, {name}! Welcome to the Flask Application!"
+    return jsonify({'greeting': greeting, 'status': 'success'})
+
 @app.route('/api/data', methods=['POST'])
 def post_data():
-    # Отримання даних з запиту
     content = request.json
     response_data = {
         'received': content,
