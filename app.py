@@ -4,7 +4,7 @@ from applicationinsights import TelemetryClient
 app = Flask(__name__)
 
 
-instrumentation_key = '09269765-812a-4bed-a6dc-5b273e607a6d'
+instrumentation_key = ''
 telemetry_client = TelemetryClient(instrumentation_key)
 
 @app.route('/')
