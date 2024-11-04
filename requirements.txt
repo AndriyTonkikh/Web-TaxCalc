@@ -1,4 +1,4 @@
 Flask==2.0.1
 Werkzeug==2.0.3
-opencensus-ext-azure
-opencensus-ext-flask
+opencensus-ext-azure==1.0.5
+opencensus-ext-flask==0.7.3
