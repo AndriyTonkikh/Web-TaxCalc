@@ -1,17 +1,11 @@
 from flask import Flask, request, jsonify, render_template
-from opencensus.ext.azure.trace_exporter import AzureExporter
-from opencensus.trace.samplers import ProbabilitySampler
-from opencensus.trace.tracer import Tracer
-from opencensus.ext.flask.flask_middleware import FlaskMiddleware
+from applicationinsights import TelemetryClient
 
 app = Flask(__name__)
 
 
-exporter = AzureExporter(connection_string="InstrumentationKey=09269765-812a-4bed-a6dc-5b273e607a6d")
-tracer = Tracer(exporter=exporter, sampler=ProbabilitySampler(1.0))
-
-# Додаємо Application Insights до Flask Middleware для автоматичного відстеження запитів
-middleware = FlaskMiddleware(app, exporter=exporter, sampler=ProbabilitySampler(1.0))
+instrumentation_key = '09269765-812a-4bed-a6dc-5b273e607a6d'
+telemetry_client = TelemetryClient(instrumentation_key)
 
 @app.route('/')
 def home():
@@ -19,28 +13,37 @@ def home():
 
 @app.route('/api/data', methods=['GET'])
 def get_data():
-    with tracer.span(name="get_data_span"):
-        data = {
-            'message': 'Hello, this is your data!',
-            'status': 'success'
-        }
+    data = {
+        'message': 'Hello, this is your data!',
+        'status': 'success'
+    }
+    telemetry_client.track_event('Get Data Endpoint Accessed')
     return jsonify(data)
 
 @app.route('/api/greet/<name>', methods=['GET'])
 def greet_user(name):
-    with tracer.span(name="greet_user_span"):
-        greeting = f"Hello, {name}! Welcome to the Flask Application!"
+    greeting = f"Hello, {name}! Welcome to the Flask Application!"
+    telemetry_client.track_event('Greet User Endpoint Accessed', {'name': name})
     return jsonify({'greeting': greeting, 'status': 'success'})
 
 @app.route('/api/data', methods=['POST'])
 def post_data():
-    with tracer.span(name="post_data_span"):
-        content = request.json
-        response_data = {
-            'received': content,
-            'status': 'success'
-        }
+    content = request.json
+    response_data = {
+        'received': content,
+        'status': 'success'
+    }
+    telemetry_client.track_event('Post Data Endpoint Accessed', {'data': content})
     return jsonify(response_data)
+
+@app.before_first_request
+def before_first_request():
+    telemetry_client.track_event('Application Started')
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    telemetry_client.flush()
+    return jsonify({'status': 'shutdown initiated'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
