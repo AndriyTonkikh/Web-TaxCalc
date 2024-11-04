@@ -1,4 +1,3 @@
-Flask==2.2.5
-Werkzeug==2.2.3
-opencensus-ext-azure==1.1.10
-opencensus-ext-flask==0.7.6
+Flask==3.0.0
+Werkzeug==2.3.7
+applicationinsights
